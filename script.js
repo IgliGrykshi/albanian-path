@@ -1,5 +1,5 @@
 // Set launch date here (YYYY-MM-DD format)
-const launchDate = new Date("2025-06-04T00:00:00").getTime();
+const launchDate = new Date("2025-06-06T00:00:00").getTime();
 
 const updateCountdown = () => {
   const now = new Date().getTime();
