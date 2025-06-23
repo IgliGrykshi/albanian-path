@@ -481,3 +481,12 @@ footer {
 @keyframes stroke {
     100% { stroke-dashoffset: 0; }
 }
+
+@media screen and (max-width: 768px) {
+  .nav-menu {
+      display: none;
+  }
+  #tours {
+    margin-bottom: 20px;
+  }
+}
