@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const responsi = await response.json();
         console.log("responsi:::", responsi);
-        if (response.message === "Workflow was started") {
+        if (responsi.message === "Workflow was started") {
             // Hide loading state
             btnText.style.opacity = '1';
             spinner.style.display = 'none';
