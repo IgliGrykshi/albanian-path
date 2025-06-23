@@ -1,22 +1,59 @@
-// Set launch date here (YYYY-MM-DD format)
-const launchDate = new Date("2025-06-06T00:00:00").getTime();
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = contactForm.querySelector('.submit-btn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const spinner = submitBtn.querySelector('.spinner');
+    const successMessage = contactForm.querySelector('.success-message');
+    const errorMessage = contactForm.querySelector('.error-message');
 
-const updateCountdown = () => {
-  const now = new Date().getTime();
-  const timeLeft = launchDate - now;
-
-  if (timeLeft < 0) return;
-
-  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
-  const seconds = Math.floor((timeLeft / 1000) % 60);
-
-  document.getElementById("days").innerText = String(days).padStart(2, '0');
-  document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-  document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-  document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-};
-
-setInterval(updateCountdown, 1000);
-updateCountdown();
+    document.querySelector("#contactForm").addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+    
+        if (!email || !message) {
+            alert('Please fill in all fields.');
+            return;
+        }
+        console.log(`Email: ${email}`);
+        console.log(`Message: ${message}`);
+        // Show loading state
+        btnText.style.opacity = '0';
+        spinner.style.display = 'block';
+        
+        // Simulate form submission with timeout (replace with your actual form handling)
+        const endpoint = `https://igliauto.app.n8n.cloud/webhook/f58f778a-dca1-4e34-9c38-842f572f7c97`;
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email, request: message })
+        });
+    
+        const responsi = await response.json();
+        console.log("responsi:::", responsi);
+        if (response.message === "Workflow was started") {
+            // Hide loading state
+            btnText.style.opacity = '1';
+            spinner.style.display = 'none';
+            // Show success message
+            successMessage.style.display = 'block';
+            contactForm.reset();
+            
+            // Hide success message after 5 seconds
+            setTimeout(function() {
+                successMessage.style.display = 'none';
+            }, 5000);
+        } else {
+            // Show error message
+            errorMessage.style.display = 'block';
+            
+            // Hide error message after 5 seconds
+            setTimeout(function() {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+    })
+});
