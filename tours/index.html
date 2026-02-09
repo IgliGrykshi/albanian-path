@@ -1,0 +1,33 @@
+<div id="tours"></div>
+
+<script type="module">
+import { getTours } from "/script.js"
+
+const container = document.getElementById("tours")
+
+const tours = await getTours()
+console.log("Tours:", tours)
+
+tours.forEach(tour => {
+  const el = document.createElement("div")
+  el.innerHTML = `
+    <h2>${tour.title}</h2>
+    <p>${tour.summary || ""}</p>
+    <p>€${tour.price}</p>
+    <a href="/tour.html?slug=${tour.slug.current}">View tour</a>
+  `
+  container.appendChild(el)
+})
+
+// fetch("https://booking-api.igli-grykshi.workers.dev/bookings", {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify({
+//     tourSlug: "test-tour",
+//     name: "Mario Rossi",
+//     email: "mario@test.com",
+//     date: "2026-02-20",
+//     message: "Hello"
+//   })
+// }).then(r => r.json()).then(console.log)
+</script>
