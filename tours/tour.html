@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour - AlbanianPath</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="/" class="logo">Albanian<span>Path</span></a>
+            <ul class="nav-menu">
+                <li><a href="/#features">Why Us</a></li>
+                <li><a href="/#tours">Popular Tours</a></li>
+                <li><a href="/#gallery">Gallery</a></li>
+                <li><a href="/#testimonials">Reviews</a></li>
+                <li><a href="/#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="container">
+        <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading tour details...</p>
+        </div>
+    </div>
+
+    <!-- Tour content (hidden until loaded) -->
+    <div id="tourContent" style="display: none;">
+        <!-- Hero section -->
+        <div id="tourHero" class="tour-hero">
+            <div class="tour-hero-content">
+                <h1 id="tourTitle"></h1>
+                <div id="tourPrice" class="tour-hero-price"></div>
+            </div>
+        </div>
+
+        <!-- Detail section -->
+        <section class="tour-detail-section">
+            <div class="container">
+                <a href="/tours" class="back-link">
+                    ← Back to Tours
+                </a>
+                <div class="tour-detail-grid">
+                    <div>
+                        <div id="tourDescription" class="tour-description"></div>
+
+                        <div id="tourGallery" class="tour-gallery" style="display: none;">
+                            <h2>Tour Gallery</h2>
+                            <div id="tourGalleryGrid" class="tour-gallery-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="tour-sidebar">
+                        <h3>Tour Details</h3>
+                        <div id="tourMeta"></div>
+                        <a href="/#contact" class="btn book-btn">Book This Tour</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Not found state -->
+    <div id="notFound" class="container not-found" style="display: none;">
+        <h2>Tour not found</h2>
+        <p>The tour you're looking for doesn't exist or may have been removed.</p>
+        <a href="/#tours" class="btn" style="margin-top: 1.5rem;">Browse All Tours</a>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>AlbanianPath</h3>
+                    <p>Your gateway to authentic Albanian experiences with expert local guides.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#features">Why Choose Us</a></li>
+                        <li><a href="/#tours">Popular Tours</a></li>
+                        <li><a href="/#gallery">Tour Gallery</a></li>
+                        <li><a href="/#testimonials">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Tours</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#tours">Tirana City Tours</a></li>
+                        <li><a href="/#tours">Albanian Riviera</a></li>
+                        <li><a href="/#tours">Northern Albania</a></li>
+                        <li><a href="/#tours">Cultural Heritage Tours</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li>Email: albanianpath@gmail.com</li>
+                        <li>Phone: +355 69 798 4024</li>
+                        <li>Address: Rruga Myslym Shyri, Tirana, Albania</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 AlbanianPath. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { sanity } from "../script.js"
+
+        // const slug = new URLSearchParams(window.location.search).get("slug")
+        const parts = window.location.pathname.split("/")
+        console.log("Tour slug1:", parts)
+        const slug = parts[parts.length - 1]   // "albanian-riviera"
+
+        if (!slug) {
+            showNotFound()
+        } else {
+            try {
+                const tour = await sanity.fetch(`
+                    *[_type == "tour" && slug.current == $slug][0]
+                `, { slug })
+
+                if (!tour) {
+                    showNotFound()
+                } else {
+                    renderTour(tour)
+                }
+            } catch (err) {
+                console.error(err)
+                showNotFound()
+            }
+        }
+
+fetch("https://booking-api.igli-grykshi.workers.dev/bookings", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    tourSlug: "test-tour",
+    name: "Mario Rossi",
+    email: "mario@test.com",
+    date: "2026-02-20",
+    message: "Hello"
+  })
+}).then(r => r.json()).then(console.log)
+        function renderTour(tour) {
+            // Update page title
+            document.title = `${tour.title} - AlbanianPath`
+
+            // Hero
+            const hero = document.getElementById('tourHero')
+            if (tour.mainImage?.asset?._ref) {
+                const imageId = tour.mainImage.asset._ref
+                    .replace('image-', '')
+                    .replace(/-(\w+)$/, '.$1')
+                const imageUrl = `https://cdn.sanity.io/images/pmckc756/production/${imageId}`
+                hero.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15)), url('${imageUrl}')`
+            } else {
+                hero.style.backgroundImage = `linear-gradient(135deg, var(--dark), var(--secondary))`
+            }
+
+            document.getElementById('tourTitle').textContent = tour.title
+            document.getElementById('tourPrice').textContent = tour.price ? `From €${tour.price} per person` : ''
+
+            // Description
+            const descEl = document.getElementById('tourDescription')
+            if (tour.summary) {
+                descEl.innerHTML = `<p>${tour.summary}</p>`
+            } else {
+                descEl.innerHTML = `<p>Contact us for more details about this tour.</p>`
+            }
+
+            // Sidebar meta
+            const metaEl = document.getElementById('tourMeta')
+            const metaItems = [
+                tour.price       ? { icon: '💶', label: 'Price',      value: `From €${tour.price} per person` } : null,
+                tour.duration    ? { icon: '🕐', label: 'Duration',   value: tour.duration } : null,
+                tour.groupSize   ? { icon: '👥', label: 'Group Size', value: tour.groupSize } : null,
+                tour.difficulty  ? { icon: '🏔️', label: 'Difficulty', value: tour.difficulty } : null,
+            ].filter(Boolean)
+
+            metaEl.innerHTML = metaItems.map(item => `
+                <div class="tour-meta-item">
+                    <span class="tour-meta-icon">${item.icon}</span>
+                    <span><span class="tour-meta-label">${item.label}:</span> ${item.value}</span>
+                </div>
+            `).join('')
+
+            // Gallery
+            if (tour.gallery?.length) {
+                const gallerySection = document.getElementById('tourGallery')
+                const galleryGrid = document.getElementById('tourGalleryGrid')
+                gallerySection.style.display = 'block'
+
+                tour.gallery.forEach(img => {
+                    if (img?.asset?._ref) {
+                        const imageId = img.asset._ref
+                            .replace('image-', '')
+                            .replace(/-(\w+)$/, '.$1')
+                        const imageUrl = `https://cdn.sanity.io/images/pmckc756/production/${imageId}`
+                        const div = document.createElement('div')
+                        div.className = 'tour-gallery-img'
+                        div.style.backgroundImage = `url('${imageUrl}')`
+                        galleryGrid.appendChild(div)
+                    }
+                })
+            }
+
+            // Show content
+            document.getElementById('loadingState').style.display = 'none'
+            document.getElementById('tourContent').style.display = 'block'
+        }
+
+        function showNotFound() {
+            document.getElementById('loadingState').style.display = 'none'
+            document.getElementById('notFound').style.display = 'block'
+        }
+    </script>
+</body>
+</html>

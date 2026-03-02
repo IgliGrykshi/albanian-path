@@ -1,33 +1,121 @@
-<div id="tours"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Tours - AlbanianPath</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
 
-<script type="module">
-import { getTours } from "/script.js"
+    <header>
+        <div class="container navbar">
+            <a href="/" class="logo">Albanian<span>Path</span></a>
+            <ul class="nav-menu">
+                <li><a href="/#features">Why Us</a></li>
+                <li><a href="/#tours">Popular Tours</a></li>
+                <li><a href="/#gallery">Gallery</a></li>
+                <li><a href="/#testimonials">Reviews</a></li>
+                <li><a href="/#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
 
-const container = document.getElementById("tours")
+    <section class="tours" style="padding-top: 6rem;">
+        <div class="container">
+            <h2 class="section-title">All Tours</h2>
+            <div id="toursGrid" class="tours-grid">
+                <!-- Loading state -->
+                <p id="loadingMsg">Loading tours...</p>
+            </div>
+        </div>
+    </section>
 
-const tours = await getTours()
-console.log("Tours:", tours)
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>AlbanianPath</h3>
+                    <p>Your gateway to authentic Albanian experiences with expert local guides.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#features">Why Choose Us</a></li>
+                        <li><a href="/#tours">Popular Tours</a></li>
+                        <li><a href="/#gallery">Tour Gallery</a></li>
+                        <li><a href="/#testimonials">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Tours</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#tours">Tirana City Tours</a></li>
+                        <li><a href="/#tours">Albanian Riviera</a></li>
+                        <li><a href="/#tours">Northern Albania</a></li>
+                        <li><a href="/#tours">Cultural Heritage Tours</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li>Email: albanianpath@gmail.com</li>
+                        <li>Phone: +355 69 798 4024</li>
+                        <li>Address: Rruga Myslym Shyri, Tirana, Albania</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 AlbanianPath. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
-tours.forEach(tour => {
-  const el = document.createElement("div")
-  el.innerHTML = `
-    <h2>${tour.title}</h2>
-    <p>${tour.summary || ""}</p>
-    <p>€${tour.price}</p>
-    <a href="/tour.html?slug=${tour.slug.current}">View tour</a>
-  `
-  container.appendChild(el)
-})
+    <script type="module">
+        import { sanity } from "../script.js"
 
-// fetch("https://booking-api.igli-grykshi.workers.dev/bookings", {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify({
-//     tourSlug: "test-tour",
-//     name: "Mario Rossi",
-//     email: "mario@test.com",
-//     date: "2026-02-20",
-//     message: "Hello"
-//   })
-// }).then(r => r.json()).then(console.log)
-</script>
+        try {
+            const tours = await sanity.fetch(`
+                *[_type == "tour"] | order(_createdAt asc) {
+                    title,
+                    summary,
+                    price,
+                    mainImage,
+                    slug
+                }
+            `)
+
+            const grid = document.getElementById('toursGrid')
+            document.getElementById('loadingMsg').remove()
+
+            if (!tours.length) {
+                grid.innerHTML = '<p>No tours available at the moment.</p>'
+            } else {
+                grid.innerHTML = tours.map(tour => {
+                    const imageId = tour.mainImage?.asset?._ref
+                        ?.replace('image-', '')
+                        ?.replace(/-(\w+)$/, '.$1')
+                    const imageUrl = imageId
+                        ? `https://cdn.sanity.io/images/pmckc756/production/${imageId}`
+                        : ''
+
+                    return `
+                        <div class="tour-card">
+                            <div class="tour-img" style="background-image: url('${imageUrl}');"></div>
+                            <div class="tour-content">
+                                <h3 class="tour-title">${tour.title}</h3>
+                                ${tour.price ? `<p class="tour-price">From €${tour.price} per person</p>` : ''}
+                                <p>${tour.summary ?? ''}</p>
+                                <a href="/tours/${tour.slug.current}" class="btn cta-btn">View Details</a>
+                            </div>
+                        </div>
+                    `
+                }).join('')
+            }
+        } catch (err) {
+            console.error(err)
+            document.getElementById('toursGrid').innerHTML = '<p>Failed to load tours. Please try again later.</p>'
+        }
+    </script>
+</body>
+</html>
