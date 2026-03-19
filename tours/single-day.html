@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Day Tours - AlbanianPath</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <header></header>
+
+    <section class="tours-hero">
+        <div class="container">
+            <div style="text-align: left;">
+                <a href="/tours" class="back-link">← Back to All Tours</a>
+            </div>
+            <h1 class="tours-hero-title">Single Day Tours</h1>
+            <p class="tours-hero-subtitle">Discover Albania in a day. Our single-day tours offer unforgettable experiences—from vibrant city walks to dramatic mountain treks—all guided by expert locals who know every hidden gem.</p>
+        </div>
+    </section>
+
+    <section class="all-tours-section">
+        <div class="container">
+            <div id="toursGrid" class="tours-grid">
+                <p class="loading-text">Loading tours...</p>
+            </div>
+            <div id="emptyState" style="display: none; text-align: center; padding: 4rem 0;">
+                <p style="color: var(--text-secondary); font-size: 1.1rem;">No single day tours available at the moment.</p>
+                <a href="/tours" class="btn" style="margin-top: 1.5rem;">Browse All Tours</a>
+            </div>
+        </div>
+    </section>
+
+    <footer></footer>
+
+    <script type="module">
+        import { sanity } from "../script.js"
+
+        try {
+            const tours = await sanity.fetch(`
+                *[_type == "tour" && !isMultiDay] | order(_createdAt asc) {
+                    title,
+                    description,
+                    pricing,
+                    images,
+                    slug,
+                    duration,
+                    groupSize,
+                    accessibility,
+                    difficulty
+                }
+            `)
+
+            const grid = document.getElementById('toursGrid')
+
+            if (!tours.length) {
+                grid.style.display = 'none'
+                document.getElementById('emptyState').style.display = 'block'
+            } else {
+                function buildImageUrl(ref) {
+                    if (!ref) return ''
+                    return `https://cdn.sanity.io/images/pmckc756/production/${ref.replace('image-', '').replace(/-(\w+)$/, '.$1')}`
+                }
+
+                function getStartingPrice(tour) {
+                    if (tour.pricing?.length) return Math.min(...tour.pricing.map(t => t.price))
+                    return tour.price || null
+                }
+
+                grid.innerHTML = tours.map(tour => {
+                    const imageUrl = buildImageUrl(tour.images?.[0]?.asset?._ref)
+                    const startingPrice = getStartingPrice(tour)
+                    return `
+                        <div class="tour-card">
+                            <div class="tour-img" style="background-image: url('${imageUrl}');">
+                                ${startingPrice ? `<div class="tour-card-price">From €${startingPrice}</div>` : ''}
+                            </div>
+                            <div class="tour-content">
+                                <h3 class="tour-title">${tour.title}</h3>
+                                <div class="tour-card-meta">
+                                    ${tour.duration ? `<span class="tour-card-meta-item" title="Duration">⏱️ ${tour.duration} hour${tour.duration === 1 ? '' : 's'}</span>` : ''}
+                                    ${tour.difficulty ? `<span class="tour-card-meta-item" title="Difficulty">⚡ ${tour.difficulty}</span>` : ''}
+                                    ${tour.groupSize ? `<span class="tour-card-meta-item" title="Group Size">👥 ${tour.groupSize}</span>` : ''}
+                                </div>
+                                <p class="tour-card-summary">${tour.description ? tour.description.substring(0, 120) + (tour.description.length > 120 ? '…' : '') : ''}</p>
+                                <a href="/tours/${tour.slug.current}" class="btn cta-btn">View Details</a>
+                            </div>
+                        </div>
+                    `
+                }).join('')
+            }
+        } catch (err) {
+            console.error(err)
+            document.getElementById('toursGrid').innerHTML = '<p class="no-tours">Failed to load tours. Please try again later.</p>'
+        }
+    </script>
+    <script src="/components.js"></script>
+</body>
+</html>

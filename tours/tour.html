@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour - AlbanianPath</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <header></header>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="container">
+        <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading tour details...</p>
+        </div>
+    </div>
+
+    <!-- Tour content (hidden until loaded) -->
+    <div id="tourContent" style="display: none;">
+        <!-- Hero Title Section -->
+        <section class="tour-title-section">
+            <div class="container">
+                <a href="/tours" class="back-link">← Back to Tours</a>
+                <h1 id="tourTitle" class="tour-main-title"></h1>
+                <p id="tourSummaryBrief" class="tour-subtitle"></p>
+            </div>
+        </section>
+
+        <!-- Gallery and Booking Section (side by side) -->
+        <section class="tour-top-section">
+            <div class="container">
+                <div class="tour-top-grid">
+                    <!-- Left: Image Gallery Carousel -->
+                    <div class="tour-gallery-side">
+                        <div class="gallery-main-side">
+                            <img id="mainGalleryImage" src="" alt="Tour Image">
+                            <button class="gallery-nav prev" onclick="prevImage()">‹</button>
+                            <button class="gallery-nav next" onclick="nextImage()"><span>›</span></button>
+                            <div class="gallery-counter">
+                                <span id="currentImageIndex">1</span> / <span id="totalImages">1</span>
+                            </div>
+                        </div>
+                        <div class="gallery-thumbnails" id="galleryThumbnails"></div>
+
+                        <!-- Tour Info Cards Section -->
+                        <section class="tour-info-section">
+                            <!-- <div class="container"> -->
+                                <div class="tour-info-cards" id="tourInfoCards"></div>
+                            <!-- </div> -->
+                        </section>
+                    </div>
+
+                    <!-- Right: Booking Form -->
+                    <div class="tour-booking-side">
+                        <div class="booking-card">
+                            <h3>Book This Tour</h3>
+                            <form id="bookingForm" class="booking-form-compact">
+                                <div class="form-row">
+                                    <div class="form-group-compact">
+                                        <input type="text" id="bookingFirstName" placeholder="First Name" required>
+                                    </div>
+                                    <div class="form-group-compact">
+                                        <input type="text" id="bookingLastName" placeholder="Last Name" required>
+                                    </div>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="email" id="bookingEmail" placeholder="Email" required>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="email" id="bookingConfirmEmail" placeholder="Confirm Email" required>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="tel" id="bookingPhone" placeholder="Phone Number" required>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="date" id="bookingDate" placeholder="Start Date" required>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="number" id="bookingParticipants" placeholder="Number of People" min="1" value="1" required>
+                                </div>
+                                <div class="form-group-compact">
+                                    <input type="text" id="bookingPickup" placeholder="Pickup Location (Optional)">
+                                </div>
+                                <div class="form-group-compact">
+                                    <textarea id="bookingNotes" placeholder="Additional Notes (Optional)" rows="3"></textarea>
+                                </div>
+                                <div class="price-display" id="priceDisplay">
+                                    <div class="price-label">Total Price:</div>
+                                    <div class="price-value" id="totalPrice">€0</div>
+                                </div>
+                                <button type="submit" class="btn book-btn">
+                                    Book Now
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Section (full width) -->
+        <section class="tour-content-full">
+            <div class="container">
+                <div class="tour-accordions">
+
+                    <!-- About Section -->
+                    <div class="accordion open">
+                        <button class="accordion-header">
+                            <span>About This Tour</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <div id="tourDescription" class="tour-description"></div>
+                        </div>
+                    </div>
+
+                    <!-- Itinerary Section -->
+                    <div id="itinerarySection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>Itinerary</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <div id="tourItinerary" class="tour-itinerary"></div>
+                        </div>
+                    </div>
+
+                    <!-- What's Included -->
+                    <div id="includedSection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>What's Included</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <div id="tourIncluded" class="tour-included-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- What's Not Included -->
+                    <div id="notIncludedSection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>Not Included</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <div id="tourNotIncluded" class="tour-included-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- What You'll Need -->
+                    <div id="whatYouNeedSection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>What You'll Need</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <div id="tourWhatYouNeed" class="tour-included-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Accessibility -->
+                    <div id="accessibilitySection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>Accessibility</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <p id="accessibilityText" class="accordion-static-text"></p>
+                        </div>
+                    </div>
+
+                    <!-- Cancellation Policy -->
+                    <div id="cancellationSection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>Cancellation Policy</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <p id="cancellationText" class="accordion-static-text"></p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div id="additionalInfoSection" class="accordion" style="display: none;">
+                        <button class="accordion-header">
+                            <span>Additional Information</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <p id="additionalInfoText" class="accordion-static-text"></p>
+                        </div>
+                    </div>
+
+                    <!-- Help -->
+                    <div class="accordion">
+                        <button class="accordion-header">
+                            <span>Need Help?</span>
+                            <span class="accordion-icon"></span>
+                        </button>
+                        <div class="accordion-body">
+                            <p class="accordion-static-text">Have questions before you book? We're happy to help. Reach us at <a href="mailto:albanianpath@gmail.com">albanianpath@gmail.com</a> or call / WhatsApp us at <a href="tel:+355697984024">+355 69 798 4024</a>. We typically respond within a few hours during business hours.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Not found state -->
+    <div id="notFound" class="container not-found" style="display: none;">
+        <h2>Tour not found</h2>
+        <p>The tour you're looking for doesn't exist or may have been removed.</p>
+        <a href="/#tours" class="btn" style="margin-top: 1.5rem;">Browse All Tours</a>
+    </div>
+
+    <footer></footer>
+
+    <script type="module">
+        import { sanity } from "../script.js"
+
+        const parts = window.location.pathname.split("/")
+        const slug = parts[parts.length - 1]
+
+        let currentImageIndex = 0
+        let galleryImages = []
+
+        if (!slug) {
+            showNotFound()
+        } else {
+            try {
+                const tour = await sanity.fetch(`
+                    *[_type == "tour" && slug.current == $slug][0]
+                `, { slug })
+
+                if (!tour) {
+                    showNotFound()
+                } else {
+                    renderTour(tour)
+                }
+            } catch (err) {
+                console.error(err)
+                showNotFound()
+            }
+        }
+
+        window.prevImage = function() {
+            if (galleryImages.length === 0) return
+            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length
+            updateGalleryDisplay()
+        }
+
+        window.nextImage = function() {
+            if (galleryImages.length === 0) return
+            currentImageIndex = (currentImageIndex + 1) % galleryImages.length
+            updateGalleryDisplay()
+        }
+
+        window.goToImage = function(index) {
+            currentImageIndex = index
+            updateGalleryDisplay()
+        }
+
+        function updateGalleryDisplay() {
+            if (galleryImages.length === 0) return
+            
+            document.getElementById('mainGalleryImage').src = galleryImages[currentImageIndex]
+            document.getElementById('currentImageIndex').textContent = currentImageIndex + 1
+            
+            // Update thumbnail active state
+            const thumbnails = document.querySelectorAll('.gallery-thumbnail')
+            thumbnails.forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === currentImageIndex)
+            })
+        }
+
+        function renderTour(tour) {
+            document.title = `${tour.title} - AlbanianPath`
+
+            // Build gallery images array from tour.images
+            galleryImages = []
+            if (tour.images?.length) {
+                tour.images.forEach(img => {
+                    if (img?.asset?._ref) {
+                        const imageId = img.asset._ref
+                            .replace('image-', '')
+                            .replace(/-(\w+)$/, '.$1')
+                        galleryImages.push(`https://cdn.sanity.io/images/pmckc756/production/${imageId}`)
+                    }
+                })
+            }
+
+            // Render gallery
+            if (galleryImages.length > 0) {
+                document.getElementById('mainGalleryImage').src = galleryImages[0]
+                document.getElementById('totalImages').textContent = galleryImages.length
+                
+                const thumbContainer = document.getElementById('galleryThumbnails')
+                thumbContainer.innerHTML = galleryImages.map((url, i) => `
+                    <img src="${url}" 
+                         class="gallery-thumbnail ${i === 0 ? 'active' : ''}" 
+                         onclick="goToImage(${i})"
+                         alt="Thumbnail ${i + 1}">
+                `).join('')
+            }
+
+            // Title
+            document.getElementById('tourTitle').textContent = tour.title
+            document.getElementById('tourSummaryBrief').textContent = tour.description
+                ? tour.description.substring(0, 160) + (tour.description.length > 160 ? '…' : '')
+                : ''
+
+            // Pricing (numberOfPeople is a string label, e.g. "1", "2-4", "5+")
+            const pricingTiers = (tour.pricing || []).sort((a, b) => parseInt(a.numberOfPeople) - parseInt(b.numberOfPeople))
+            const startingPrice = pricingTiers.length > 0 ? Math.min(...pricingTiers.map(t => t.price)) : 0
+
+            function getPricePerPerson() {
+                return startingPrice
+            }
+
+            // Info cards
+            const infoCards = document.getElementById('tourInfoCards')
+            const durationValue = tour.isMultiDay
+                ? (tour.numberOfDays ? tour.numberOfDays + (tour.numberOfDays === 1 ? ' day' : ' days') : null)
+                : (tour.duration ? tour.duration + (tour.duration === 1 ? ' hour' : ' hours') : null)
+            const cards = [
+                durationValue           ? { icon: '⏱️', label: 'Duration',      value: durationValue } : null,
+                startingPrice           ? { icon: '💰', label: 'Starting From', value: `€${startingPrice} per person` } : null,
+                tour.groupSize          ? { icon: '👥', label: 'Group Size',    value: tour.groupSize } : null,
+                // tour.accessibility      ? { icon: '⛰️', label: 'Accessibility', value: tour.accessibility } : null,
+                tour.startTime          ? { icon: '🕗', label: 'Start Time',    value: tour.startTime } : null,
+                // tour.cancellationPolicy ? { icon: '📋', label: 'Cancellation',  value: tour.cancellationPolicy } : null,
+            ].filter(Boolean)
+
+            infoCards.innerHTML = cards.map(card => `
+                <div class="info-card">
+                    <span class="info-icon">${card.icon}</span>
+                    <div class="info-content">
+                        <div class="info-label">${card.label}</div>
+                        <div class="info-value">${card.value}</div>
+                    </div>
+                </div>
+            `).join('')
+
+            // Description
+            const descEl = document.getElementById('tourDescription')
+            descEl.innerHTML = tour.description
+                ? `<p>${tour.description}</p>`
+                : '<p>Contact us for more details.</p>'
+
+            // Itinerary (if available)
+            if (tour.itinerary?.length) {
+                document.getElementById('itinerarySection').style.display = 'block'
+                document.getElementById('tourItinerary').innerHTML = tour.itinerary.map((item, i) => `
+                    <div class="itinerary-item">
+                        <div class="itinerary-number">${i + 1}</div>
+                        <div class="itinerary-content">
+                            <h3>${item.day || `Day ${i + 1}`}</h3>
+                            <p>${item.activities || ''}</p>
+                        </div>
+                    </div>
+                `).join('')
+            }
+
+            // What's Included
+            if (tour.included?.length) {
+                document.getElementById('includedSection').style.display = 'block'
+                document.getElementById('tourIncluded').innerHTML = tour.included.map(item => `
+                    <div class="included-item">
+                        <span class="included-icon">✓</span>
+                        <span>${item}</span>
+                    </div>
+                `).join('')
+            }
+
+            // What's Not Included
+            if (tour.excluded?.length) {
+                document.getElementById('notIncludedSection').style.display = 'block'
+                document.getElementById('tourNotIncluded').innerHTML = tour.excluded.map(item => `
+                    <div class="included-item">
+                        <span class="included-icon">✗</span>
+                        <span>${item}</span>
+                    </div>
+                `).join('')
+            }
+
+            // What You'll Need
+            if (tour.whatYouNeed?.length) {
+                document.getElementById('whatYouNeedSection').style.display = 'block'
+                document.getElementById('tourWhatYouNeed').innerHTML = tour.whatYouNeed.map(item => `
+                    <div class="included-item">
+                        <span class="included-icon">🎢</span>
+                        <span>${item}</span>
+                    </div>
+                `).join('')
+            }
+
+            // Accessibility
+            if (tour.accessibility) {
+                document.getElementById('accessibilitySection').style.display = 'block'
+                document.getElementById('accessibilityText').textContent = tour.accessibility
+            }
+
+            // Cancellation Policy
+            if (tour.cancellationPolicy) {
+                document.getElementById('cancellationSection').style.display = 'block'
+                document.getElementById('cancellationText').textContent = tour.cancellationPolicy
+            }
+
+            // Additional Information
+            if (tour.additionalInformation) {
+                document.getElementById('additionalInfoSection').style.display = 'block'
+                document.getElementById('additionalInfoText').textContent = tour.additionalInformation
+            }
+
+            // Price calculation using pricing tiers
+            const participantsInput = document.getElementById('bookingParticipants')
+            const totalPriceDisplay = document.getElementById('totalPrice')
+
+            function updateTotalPrice() {
+                const numberOfPeople = parseInt(participantsInput.value) || 1
+                const pricePerPerson = getPricePerPerson()
+                const totalPrice = (pricePerPerson * numberOfPeople).toFixed(2)
+                totalPriceDisplay.textContent = `€${totalPrice}`
+            }
+
+            // Update price when participants change
+            participantsInput.addEventListener('input', updateTotalPrice)
+            updateTotalPrice() // Set initial price
+
+            // Booking form submission
+            document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+                e.preventDefault()
+
+                // Validate email confirmation
+                const email = document.getElementById('bookingEmail').value
+                const confirmEmail = document.getElementById('bookingConfirmEmail').value
+                
+                if (email !== confirmEmail) {
+                    alert('Email addresses do not match. Please check and try again.')
+                    return
+                }
+
+                const submitBtn = e.target.querySelector('button[type="submit"]')
+                const originalText = submitBtn.textContent
+                submitBtn.disabled = true
+                submitBtn.textContent = 'Sending...'
+
+                try {
+                    const numberOfPeople = parseInt(participantsInput.value) || 1
+                    const pricePerPerson = getPricePerPerson()
+                    const totalPrice = (pricePerPerson * numberOfPeople).toFixed(2)
+
+                    const formData = {
+                        firstName: document.getElementById('bookingFirstName').value,
+                        lastName: document.getElementById('bookingLastName').value,
+                        email: email,
+                        confirmEmail: confirmEmail,
+                        phoneNumber: document.getElementById('bookingPhone').value,
+                        numberOfPeople: numberOfPeople,
+                        startDate: document.getElementById('bookingDate').value,
+                        price: parseFloat(totalPrice),
+                        tourName: tour.title,
+                        pickupLocation: document.getElementById('bookingPickup').value || '',
+                        notes: document.getElementById('bookingNotes').value || ''
+                    }
+
+                    const response = await fetch('https://booking-api.igli-grykshi.workers.dev/bookings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    })
+
+                    if (response.ok) {
+                        submitBtn.textContent = '✓ Booking Sent!'
+                        submitBtn.style.backgroundColor = '#16a34a'
+                        e.target.reset()
+                        updateTotalPrice() // Reset price display
+                        setTimeout(() => {
+                            submitBtn.textContent = originalText
+                            submitBtn.style.backgroundColor = ''
+                            submitBtn.disabled = false
+                        }, 3000)
+                    } else {
+                        const errorData = await response.json().catch(() => ({}))
+                        throw new Error(errorData.message || 'Booking failed')
+                    }
+                } catch (err) {
+                    console.error(err)
+                    submitBtn.textContent = '✗ Failed. Try again'
+                    submitBtn.style.backgroundColor = '#dc2626'
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText
+                        submitBtn.style.backgroundColor = ''
+                        submitBtn.disabled = false
+                    }, 3000)
+                }
+            })
+
+            // Show content
+            document.getElementById('loadingState').style.display = 'none'
+            document.getElementById('tourContent').style.display = 'block'
+
+            // Accordion toggle
+            document.querySelectorAll('.accordion-header').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const accordion = btn.parentElement
+                    accordion.classList.toggle('open')
+                })
+            })
+        }
+
+        function showNotFound() {
+            document.getElementById('loadingState').style.display = 'none'
+            document.getElementById('notFound').style.display = 'block'
+        }
+    </script>
+    <script src="/components.js"></script>
+</body>
+</html>
