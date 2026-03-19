@@ -1,4 +1,3 @@
-/tours/tour.html         /tours/tour.html                    200
 /tours/single-day-tours  /tours/single-day-tours/index.html  200
 /tours/multi-day-tours   /tours/multi-day-tours/index.html   200
-/tours/:slug             /tours/tour.html                    200
+/tours/:slug             /_tour.html                    200
