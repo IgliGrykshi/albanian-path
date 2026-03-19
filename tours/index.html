@@ -8,114 +8,137 @@
 </head>
 <body>
 
-    <header>
-        <div class="container navbar">
-            <a href="/" class="logo">Albanian<span>Path</span></a>
-            <ul class="nav-menu">
-                <li><a href="/#features">Why Us</a></li>
-                <li><a href="/#tours">Popular Tours</a></li>
-                <li><a href="/#gallery">Gallery</a></li>
-                <li><a href="/#testimonials">Reviews</a></li>
-                <li><a href="/#contact">Contact</a></li>
-            </ul>
-        </div>
-    </header>
+    <header></header>
 
-    <section class="tours" style="padding-top: 6rem;">
+    <section class="tours-hero">
         <div class="container">
-            <h2 class="section-title">All Tours</h2>
-            <div id="toursGrid" class="tours-grid">
-                <!-- Loading state -->
-                <p id="loadingMsg">Loading tours...</p>
+            <h1 class="tours-hero-title">Our Tours</h1>
+            <p class="tours-hero-subtitle">From authentic day adventures to immersive multi-day expeditions, we offer guided tours for every type of explorer. Browse our categories below and find your perfect Albanian adventure.</p>
+        </div>
+    </section>
+
+    <section class="tour-categories">
+        <div class="container">
+            <div class="category-card">
+                <div class="category-image" style="background-image: url('../images/tirana.jpg');"></div>
+                <div class="category-content">
+                    <h2>Single Day Tours</h2>
+                    <p>Perfect for those who want an unforgettable day exploring Albania without the overnight commitment. Our single-day tours range from gentle city walks to challenging mountain treks—all led by expert local guides.</p>
+                    <div id="singleDayTours" class="tours-grid">
+                        <p class="loading-text">Loading tours...</p>
+                    </div>
+                    <div class="see-all-tours">
+                        <a href="/tours/single-day" class="btn btn-secondary">See All Single Day Tours →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card reverse">
+                <div class="category-image" style="background-image: url('../images/riviera.jpg');"></div>
+                <div class="category-content">
+                    <h2>Multi-Day Tours</h2>
+                    <p>Dive deeper into Albania's wonders with our multi-day expeditions. Explore the Albanian Riviera, discover ancient ruins, and experience nature at its most raw and beautiful. All accommodations and activities included.</p>
+                    <div id="multiDayTours" class="tours-grid">
+                        <p class="loading-text">Loading tours...</p>
+                    </div>
+                    <div class="see-all-tours">
+                        <a href="/tours/multi-day" class="btn btn-secondary">See All Multi-Day Tours →</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>AlbanianPath</h3>
-                    <p>Your gateway to authentic Albanian experiences with expert local guides.</p>
-                </div>
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="/#features">Why Choose Us</a></li>
-                        <li><a href="/#tours">Popular Tours</a></li>
-                        <li><a href="/#gallery">Tour Gallery</a></li>
-                        <li><a href="/#testimonials">Testimonials</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Tours</h3>
-                    <ul class="footer-links">
-                        <li><a href="/#tours">Tirana City Tours</a></li>
-                        <li><a href="/#tours">Albanian Riviera</a></li>
-                        <li><a href="/#tours">Northern Albania</a></li>
-                        <li><a href="/#tours">Cultural Heritage Tours</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <ul class="footer-links">
-                        <li>Email: albanianpath@gmail.com</li>
-                        <li>Phone: +355 69 798 4024</li>
-                        <li>Address: Rruga Myslym Shyri, Tirana, Albania</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 AlbanianPath. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <footer></footer>
 
     <script type="module">
         import { sanity } from "../script.js"
 
         try {
             const tours = await sanity.fetch(`
-                *[_type == "tour"] | order(_createdAt asc) {
+                *[_type == "tour" && isFeaturedOnToursPage == true] | order(_createdAt asc) {
                     title,
-                    summary,
-                    price,
-                    mainImage,
-                    slug
+                    description,
+                    pricing,
+                    images,
+                    slug,
+                    isMultiDay,
+                    numberOfDays,
+                    duration,
+                    groupSize,
+                    accessibility,
+                    difficulty
                 }
             `)
 
-            const grid = document.getElementById('toursGrid')
-            document.getElementById('loadingMsg').remove()
+            const singleDayGrid = document.getElementById('singleDayTours')
+            const multiDayGrid = document.getElementById('multiDayTours')
+
+            // Clear loading messages
+            singleDayGrid.innerHTML = ''
+            multiDayGrid.innerHTML = ''
 
             if (!tours.length) {
-                grid.innerHTML = '<p>No tours available at the moment.</p>'
+                singleDayGrid.innerHTML = '<p>No tours available at the moment.</p>'
             } else {
-                grid.innerHTML = tours.map(tour => {
-                    const imageId = tour.mainImage?.asset?._ref
-                        ?.replace('image-', '')
-                        ?.replace(/-(\w+)$/, '.$1')
-                    const imageUrl = imageId
-                        ? `https://cdn.sanity.io/images/pmckc756/production/${imageId}`
-                        : ''
+                const singleDayTours = tours.filter(tour => !tour.isMultiDay)
+                const multiDayTours = tours.filter(tour => tour.isMultiDay)
 
+                function buildImageUrl(ref) {
+                    if (!ref) return ''
+                    return `https://cdn.sanity.io/images/pmckc756/production/${ref.replace('image-', '').replace(/-(\w+)$/, '.$1')}`
+                }
+
+                function getStartingPrice(tour) {
+                    if (tour.pricing?.length) return Math.min(...tour.pricing.map(t => t.price))
+                    return tour.price || null
+                }
+
+                function renderTourCard(tour) {
+                    const imageUrl = buildImageUrl(tour.images?.[0]?.asset?._ref)
+                    const startingPrice = getStartingPrice(tour)
+                    const durationLabel = tour.isMultiDay
+                        ? (tour.numberOfDays ? `${tour.numberOfDays} day${tour.numberOfDays === 1 ? '' : 's'}` : '')
+                        : (tour.duration ? `${tour.duration} hour${tour.duration === 1 ? '' : 's'}` : '')
                     return `
                         <div class="tour-card">
-                            <div class="tour-img" style="background-image: url('${imageUrl}');"></div>
+                            <div class="tour-img" style="background-image: url('${imageUrl}');">
+                                ${startingPrice ? `<div class="tour-card-price">From €${startingPrice}</div>` : ''}
+                            </div>
                             <div class="tour-content">
                                 <h3 class="tour-title">${tour.title}</h3>
-                                ${tour.price ? `<p class="tour-price">From €${tour.price} per person</p>` : ''}
-                                <p>${tour.summary ?? ''}</p>
+                                <div class="tour-card-meta">
+                                    ${durationLabel ? `<span class="tour-card-meta-item" title="Duration">⏱️ ${durationLabel}</span>` : ''}
+                                    ${tour.difficulty ? `<span class="tour-card-meta-item" title="Difficulty">⚡ ${tour.difficulty}</span>` : ''}
+                                    ${tour.groupSize ? `<span class="tour-card-meta-item" title="Group Size">👥 ${tour.groupSize}</span>` : ''}
+                                </div>
+                                <p class="tour-card-summary">${tour.description ? tour.description.substring(0, 120) + (tour.description.length > 120 ? '…' : '') : ''}</p>
                                 <a href="/tours/${tour.slug.current}" class="btn cta-btn">View Details</a>
                             </div>
                         </div>
                     `
-                }).join('')
+                }
+
+                // Render single day tours (max 2)
+                if (singleDayTours.length) {
+                    singleDayGrid.innerHTML = singleDayTours.slice(0, 2).map(renderTourCard).join('')
+                } else {
+                    singleDayGrid.innerHTML = '<p class="no-tours">No single day tours available.</p>'
+                }
+
+                // Render multi-day tours (max 2)
+                if (multiDayTours.length) {
+                    multiDayGrid.innerHTML = multiDayTours.slice(0, 2).map(renderTourCard).join('')
+                } else {
+                    multiDayGrid.innerHTML = '<p class="no-tours">No multi-day tours available.</p>'
+                }
             }
         } catch (err) {
             console.error(err)
-            document.getElementById('toursGrid').innerHTML = '<p>Failed to load tours. Please try again later.</p>'
+            document.getElementById('singleDayTours').innerHTML = '<p>Failed to load tours. Please try again later.</p>'
+            document.getElementById('multiDayTours').innerHTML = '<p>Failed to load tours. Please try again later.</p>'
         }
     </script>
+    <script src="/components.js"></script>
 </body>
 </html>
