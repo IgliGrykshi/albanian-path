@@ -13,6 +13,6 @@ export async function onRequestGet({ request, env, params }) {
 
   // Fall back to the dynamic Sanity tour template
   return env.ASSETS.fetch(
-    new URL("/_tour.html", request.url).toString()
+    new URL("/tour-template.html", request.url).toString()
   );
 }
