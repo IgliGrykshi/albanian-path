@@ -1,0 +1,4 @@
+/tours/index      /tours/index.html      200
+/tours/single-day /tours/single-day.html 200
+/tours/multi-day  /tours/multi-day.html  200
+/tours/*          /tour-template.html    200
