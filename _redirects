@@ -1,2 +1,0 @@
-# Tours routing is handled by functions/tours/[slug].js
-/tours/:slug             /_tour/index.html                    200
