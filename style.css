@@ -1794,8 +1794,7 @@ footer {
     }
 
     .tour-top-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+        display: block;
     }
 
     .tour-booking-side {
