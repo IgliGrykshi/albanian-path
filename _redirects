@@ -1,3 +1,2 @@
-/tours/single-day  /tours/single-day/index.html  200
-/tours/multi-day   /tours/multi-day/index.html   200
-/tours/:slug             /_tour.html                    200
+# Tours routing is handled by functions/tours/[slug].js
+/tours/:slug             /_tour/index.html                    200
